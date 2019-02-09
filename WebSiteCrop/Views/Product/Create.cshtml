@@ -1,0 +1,115 @@
+﻿@model WebSiteCrop.Models.ProducCreateViewModel
+
+@{
+    ViewBag.Title = "Додати новий продукт";
+}
+
+@section styles {
+    <link href="~/Content/cropper/cropper.min.css" rel="stylesheet" />
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Price, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Image, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="file" name="UploadImage" id="UploadImage" class="form-control" />
+                @*@Html.EditorFor(model => model.Image, new { htmlAttributes = new { @class = "form-control" } })*@
+                @Html.ValidationMessageFor(model => model.Image, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    <canvas id="canvas" style="width:100%">
+        Your browser does not support HTML5 Canvas
+    </canvas>
+</div>
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section scripts {
+
+    <script src="~/Scripts/cropper/cropper.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#UploadImage").on("change", function () {
+                if (this.files && this.files[0]) {
+                    let fileSelect = this.files[0];
+                    //console.log('----this.files---', this.files[0]);
+                    if (fileSelect.type.match(/^image\//)) {
+                        onLoadImage(fileSelect);
+                    }
+                    else {
+                        alert('Тип файла не є зображенням');
+                    }
+                }
+                else {
+                    alert("Please select a file.");
+                }
+
+            });
+
+            function onLoadImage(fileImage) {
+                let $canvas = $("#canvas"),
+                    context = $canvas.get(0).getContext('2d');
+                let reader = new FileReader();
+                reader.onload = function (e) {
+
+                    var img = new Image();
+                    img.onload = function () {
+                        context.canvas.width = img.width;
+                        context.canvas.height = img.height;
+                        context.drawImage(img, 0, 0);
+                        $canvas.cropper();
+                    }
+                    img.src = e.target.result;
+                    console.log('----Base64 image----', e.target.result);
+                }
+                reader.readAsDataURL(fileImage);
+            }
+
+            //alert("Hello DOM Complete");
+        });
+    </script>
+}
